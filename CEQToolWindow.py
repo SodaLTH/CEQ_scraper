@@ -5,12 +5,13 @@ from PyQt5.QtCore import QRegExp
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from datetime import datetime
 from CEQTool import CEQTool
+from CEQToolWindow_ui import Ui_MainWindow
 import sys
 
-class CEQToolWindow(QMainWindow):
+class CEQToolWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("CEQ_grapher.ui", self)
+        self.setupUi(self)
 
         # Extra course row widgets are invisible by default
         self.widget_2.setVisible(False)
