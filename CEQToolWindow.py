@@ -10,7 +10,7 @@ import sys
 class CEQToolWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("CEQ_grapher_se.ui", self)
+        uic.loadUi("CEQ_grapher.ui", self)
 
         # Extra course row widgets are invisible by default
         self.widget_2.setVisible(False)
