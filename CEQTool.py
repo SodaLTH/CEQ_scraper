@@ -4,7 +4,7 @@ class CEQTool:
         self.soup = None
         self.webscrape_done = True
 
-        self.select_categories(settings)
+        self.apply_settings(settings)
         self.generate_urls(inputs)
         counter = 0 # Check if any webscraping has occured
         for url, year in self.url_dict.items():
@@ -21,9 +21,9 @@ class CEQTool:
             self.plot_data()
 
     # Select categories
-    def select_categories(self, settings):
+    def apply_settings(self, settings):
         self.plot_titles = [
-            pair[settings['plot_titles']] for pair in [
+            pair[settings['plot_language']] for pair in [
                 ['Pass Rate', 'Godkännandegrad'], 
                 ['Good Teaching', 'God undervisning'], 
                 ['Clear Goals and Standards', 'Tydliga mål'], 
@@ -31,6 +31,15 @@ class CEQTool:
                 ['Appropriate Workload', 'Lämplig arbetsbelastning'],
                 ['Course Relevance', 'Kursrelevans'],
                 ['Course Satisfaction', 'Kursnöjdhet']]]
+        
+        self.plot_text = [
+            pair[settings['plot_language']] for pair in [
+                ['Amount of Students', 'Antal Studenter'],
+                ['Percentage (%)', 'Andel (%)'],
+                ['Mean', 'Medelvärde'],
+                ['Mean ± Std dev', 'Medelvärde ± standardavvikelse'],
+                ['Score', 'Poäng'],
+                ['Year', 'År']]]
 
         keys = ['Antal godkända/andel av registrerade',
                 'God undervisning',
@@ -40,9 +49,9 @@ class CEQTool:
                 'Kursen känns angelägen för min utbildning',
                 'Överlag är jag nöjd med den här kursen']
         
-        self.categories = dict(zip(keys, self.plot_titles))
+        self.categories = dict(zip(keys, self.plot_titles)) 
         
-        self.plot_settings = {}
+        self.plot_settings = {'plot_language': settings['plot_language']}
 
         for key in list(self.categories.keys()):
             if settings[key] == 0:
@@ -81,12 +90,14 @@ class CEQTool:
         except requests.exceptions.RequestException:
             self.soup = None
 
-    # Check if CEQ is done
+    # Check if CEQ is done and if there are answers
     def CEQ_check(self):
         CEQ_exists = self.soup.find('h3', string='CEQ-enkäten fylldes i')
-        if not CEQ_exists:
+        CEQ_answered = self.soup.find('em', string='Inga svar finns. Därför visas ingen sammanfattning av svaren.')
+        if not CEQ_exists or CEQ_answered:
             if 'Antal godkända/andel av registrerade' in self.categories:
-                self.categories = {'Antal godkända/andel av registrerade': 'Pass Rate'}
+                self.categories = {
+                    'Antal godkända/andel av registrerade': self.categories['Antal godkända/andel av registrerade']}
             else: 
                 return -1
 
@@ -113,23 +124,23 @@ class CEQTool:
             value2 = [yearly_data[year][1] for year in years]
 
             fig, ax = plt.subplots(figsize=(12, 8), dpi=100)
-            if title == 'Pass Rate':
+            if title == self.plot_titles[0]:
                 if self.plot_settings[title] == 1:
                     ax.plot(years, value1, marker='o')
-                    ax.set_ylabel('Amount of Students') 
+                    ax.set_ylabel(self.plot_text[0]) 
                 else:
                     ax.plot(years, value2, marker='o')
-                    ax.set_ylabel('Percentage (%)')
+                    ax.set_ylabel(self.plot_text[1])
                     ax.set_ylim(0, 100)
             else:
                 if self.plot_settings[title] == 1:
-                    ax.plot(years, value1, marker='o', label='Mean')
+                    ax.plot(years, value1, marker='o', label=self.plot_text[2])
                 else:
-                    ax.errorbar(years, value1, yerr=value2, fmt='o-', capsize=5, ecolor='red', elinewidth=1.5, label='Mean ± Std dev')
-                ax.set_ylabel('Score')
+                    ax.errorbar(years, value1, yerr=value2, fmt='o-', capsize=5, ecolor='red', elinewidth=1.5, label=self.plot_text[3])
+                ax.set_ylabel(self.plot_text[4])
                 ax.legend()
                 ax.legend(fontsize=15)
-            ax.set_xlabel('Year')
+            ax.set_xlabel(self.plot_text[5])
             ax.set_xticks(years)
             ax.set_title(title)
             ax.title.set_fontsize(19)

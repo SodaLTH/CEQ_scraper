@@ -675,7 +675,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QCheckBox" name="checkBox">
+            <widget class="QCheckBox" name="lanBox">
              <property name="text">
               <string/>
              </property>

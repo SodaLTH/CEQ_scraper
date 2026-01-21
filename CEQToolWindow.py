@@ -27,29 +27,23 @@ class CEQToolWindow(QMainWindow):
         self.percentageBox.clicked.connect(lambda: self.exclusive_checkboxes(self.percentageBox, self.amountBox))
 
         # Grey out std checkboxes if mean isn't checked
-        self.mean_cb = [
-            self.meanTeaching,
-            self.meanGoals,
-            self.meanAssessment,
-            self.meanWorkload,
-            self.meanImportance,
-            self.meanSatisfaction,
-        ]
+        self.mean_cb = [self.meanTeaching,
+                        self.meanGoals,
+                        self.meanAssessment,
+                        self.meanWorkload,
+                        self.meanImportance,
+                        self.meanSatisfaction]
 
-        self.std_cb = [
-            self.stdTeaching,
-            self.stdGoals,
-            self.stdAssessment,
-            self.stdWorkload,
-            self.stdImportance,
-            self.stdSatisfaction,
-        ]
+        self.std_cb = [self.stdTeaching,
+                       self.stdGoals,
+                       self.stdAssessment,
+                       self.stdWorkload,
+                       self.stdImportance,
+                       self.stdSatisfaction]
 
         for mean, std in zip(self.mean_cb, self.std_cb):
             std.setEnabled(False)
-            mean.stateChanged.connect(
-                lambda _, m=mean, s=std: self.toggle_std(m, s)
-            )
+            mean.stateChanged.connect(lambda _, m=mean, s=std: self.toggle_std(m, s))
 
         # Get text input objects
         self.course_edit = [None]*3
@@ -65,8 +59,7 @@ class CEQToolWindow(QMainWindow):
 
             # Automatically change to uppercase letters
             self.course_edit[i].textChanged.connect(
-                lambda text, le=self.course_edit[i]: le.setText(text.upper())
-                )
+                lambda text, le=self.course_edit[i]: le.setText(text.upper()))
             
         # Set validators for text inputs
         self.current_year = datetime.now().year
@@ -150,13 +143,19 @@ class CEQToolWindow(QMainWindow):
         # Sort year spans
         input_list.sort(key=lambda x: x[2])
 
-        # Pass rate box
-        if self.amountBox.isChecked():
+        # Language box
+        if self.lanBox.isChecked():
             cb = [1]
-        elif self.percentageBox.isChecked():
-            cb = [2]
         else:
             cb = [0]
+
+        # Pass rate box
+        if self.amountBox.isChecked():
+            cb.append(1)
+        elif self.percentageBox.isChecked():
+            cb.append(2)
+        else:
+            cb.append(0)
         
         # Remaining boxes
         for mean_chk, std_chk in zip(self.mean_cb, self.std_cb):
@@ -168,13 +167,14 @@ class CEQToolWindow(QMainWindow):
             else:
                 cb.append(0)
         
-        settings = {'Antal godkända/andel av registrerade': cb[0], 
-                'God undervisning': cb[1],
-                'Tydliga mål': cb[2],
-                'Förståelseinriktad examination': cb[3],
-                'Lämplig arbetsbelastning': cb[4],
-                'Kursen känns angelägen för min utbildning': cb[5],
-                'Överlag är jag nöjd med den här kursen': cb[6]}
+        settings = {'plot_language': cb[0],
+                'Antal godkända/andel av registrerade': cb[1], 
+                'God undervisning': cb[2],
+                'Tydliga mål': cb[3],
+                'Förståelseinriktad examination': cb[4],
+                'Lämplig arbetsbelastning': cb[5],
+                'Kursen känns angelägen för min utbildning': cb[6],
+                'Överlag är jag nöjd med den här kursen': cb[7]}
         
         return input_list, settings
 
@@ -213,8 +213,7 @@ class PlotWindow(QMainWindow):
 
     def save_plot(self, fig):
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "Save Plot", "", "PNG Files (*.png);;All Files (*)"
-        )
+            self, "Save Plot", "", "PNG Files (*.png);;All Files (*)")
         if file_path:
             fig.savefig(file_path)
 
