@@ -3,13 +3,14 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QWidget, QVB
 from PyQt5.QtGui import QRegExpValidator, QIntValidator
 from PyQt5.QtCore import QRegExp
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from datetime import datetime
 from CEQTool import CEQTool
 import sys
 
 class CEQToolWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("CEQ_grapher.ui", self)
+        uic.loadUi("CEQ_grapher_se.ui", self)
 
         # Extra course row widgets are invisible by default
         self.widget_2.setVisible(False)
@@ -68,10 +69,11 @@ class CEQToolWindow(QMainWindow):
                 )
             
         # Set validators for text inputs
+        self.current_year = datetime.now().year
         for i in range(3):
             self.course_edit[i].setValidator(QRegExpValidator(QRegExp(r"[A-Za-z0-9]{6}"), self))
-            self.start_edit[i].setValidator(QIntValidator(2003, 2026))
-            self.end_edit[i].setValidator(QIntValidator(2003, 2026))
+            self.start_edit[i].setValidator(QIntValidator(2003, self.current_year))
+            self.end_edit[i].setValidator(QIntValidator(2003, self.current_year))
 
     # Add course code row
     def add_course_row(self):
@@ -121,7 +123,7 @@ class CEQToolWindow(QMainWindow):
             state1,_,_ = self.start_edit[i].validator().validate(start, 0)
             state2,_,_ = self.end_edit[i].validator().validate(end, 0)
             if state1 != QIntValidator.Acceptable or state2 != QIntValidator.Acceptable:
-                QMessageBox.warning(self, "Invalid Year", "Please enter a valid year between 2003 and 2026.")
+                QMessageBox.warning(self, "Invalid Year", f"Please enter a valid year between 2003 and {self.current_year}.")
                 return -1
             if int(start) > int(end):
                 QMessageBox.warning(self, "Invalid Span", "Please enter the year span correctly")

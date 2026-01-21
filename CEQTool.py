@@ -22,13 +22,26 @@ class CEQTool:
 
     # Select categories
     def select_categories(self, settings):
-        self.categories = {'Antal godkända/andel av registrerade': 'Pass Rate', 
-                           'God undervisning': 'Good Teaching',
-                           'Tydliga mål': 'Clear Goals and Standards',
-                           'Förståelseinriktad examination': 'Appropriate Assessment',
-                           'Lämplig arbetsbelastning': 'Appropriate Workload',
-                           'Kursen känns angelägen för min utbildning': 'Course Importance',
-                           'Överlag är jag nöjd med den här kursen': 'Course Satisfaction'}
+        self.plot_titles = [
+            pair[settings['plot_titles']] for pair in [
+                ['Pass Rate', 'Godkännandegrad'], 
+                ['Good Teaching', 'God undervisning'], 
+                ['Clear Goals and Standards', 'Tydliga mål'], 
+                ['Appropriate Assessment', 'Förståelseinriktad examination'],
+                ['Appropriate Workload', 'Lämplig arbetsbelastning'],
+                ['Course Relevance', 'Kursrelevans'],
+                ['Course Satisfaction', 'Kursnöjdhet']]]
+
+        keys = ['Antal godkända/andel av registrerade',
+                'God undervisning',
+                'Tydliga mål',
+                'Förståelseinriktad examination',
+                'Lämplig arbetsbelastning',
+                'Kursen känns angelägen för min utbildning',
+                'Överlag är jag nöjd med den här kursen']
+        
+        self.categories = dict(zip(keys, self.plot_titles))
+        
         self.plot_settings = {}
 
         for key in list(self.categories.keys()):
